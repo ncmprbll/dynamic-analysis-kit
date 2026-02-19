@@ -1,5 +1,10 @@
-use dynamic_analysis_kit::hello;
+use dynamic_analysis_kit::*;
 
 fn main() {
-    hello();
+    for entry in list_processes().unwrap() {
+        println!(
+            "{} {:?}",
+            entry.executable_name, entry.internal.th32ProcessID
+        );
+    }
 }
