@@ -1,6 +1,6 @@
 [package]
 name = "dynamic-analysis-kit"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2024"
 
 [dependencies]
@@ -8,5 +8,6 @@ edition = "2024"
 [dependencies.windows]
 version = ">=0.59, <=0.62"
 features = [
-    "Win32_System_Diagnostics_ToolHelp"
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_Threading"
 ]

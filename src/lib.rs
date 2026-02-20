@@ -1,5 +1,8 @@
 use windows::{
-    Win32::{Foundation::CloseHandle, System::Diagnostics::ToolHelp::*},
+    Win32::{
+        Foundation::{CloseHandle, HANDLE},
+        System::{Diagnostics::ToolHelp::*, Threading::*},
+    },
     core::Result,
 };
 
@@ -42,4 +45,36 @@ pub fn list_processes() -> Result<Vec<ProcessEntryWrapper>> {
     unsafe { CloseHandle(snapshot) }?;
 
     Ok(processes)
+}
+
+#[derive(Debug)]
+pub struct HandleWrapper {
+    handle: HANDLE,
+}
+
+impl Drop for HandleWrapper {
+    fn drop(&mut self) {
+        match unsafe { CloseHandle(self.handle) } {
+            Ok(_) => (),
+            Err(err) => panic!("Failed to close the handle with code: {}", err.code()),
+        };
+    }
+}
+
+pub fn process_handle_by_name(name: &str) -> Result<Option<HandleWrapper>> {
+    match list_processes()?
+        .iter()
+        .find(|element| element.executable_name == name)
+    {
+        Some(wrapper) => Ok(Some(HandleWrapper {
+            handle: unsafe {
+                OpenProcess(
+                    PROCESS_ALL_ACCESS,
+                    false,
+                    wrapper.process_entry.th32ProcessID,
+                )
+            }?,
+        })),
+        None => Ok(None),
+    }
 }
