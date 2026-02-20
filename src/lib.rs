@@ -64,7 +64,7 @@ impl Drop for HandleWrapper {
 pub fn process_handle_by_name(name: &str) -> Result<Option<HandleWrapper>> {
     match list_processes()?
         .iter()
-        .find(|element| element.executable_name == name)
+        .find(|wrapper| wrapper.executable_name == name)
     {
         Some(wrapper) => Ok(Some(HandleWrapper {
             handle: unsafe {
@@ -77,4 +77,17 @@ pub fn process_handle_by_name(name: &str) -> Result<Option<HandleWrapper>> {
         })),
         None => Ok(None),
     }
+}
+
+pub fn process_handle_by_id(process_id: u32) -> Result<Option<HandleWrapper>> {
+    if !list_processes()?
+        .iter()
+        .any(|wrapper| wrapper.process_entry.th32ProcessID == process_id)
+    {
+        return Ok(None);
+    }
+
+    Ok(Some(HandleWrapper {
+        handle: unsafe { OpenProcess(PROCESS_ALL_ACCESS, false, process_id) }?,
+    }))
 }
