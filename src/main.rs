@@ -4,7 +4,7 @@ fn main() {
     for entry in list_processes().unwrap() {
         println!(
             "{} {:?}",
-            entry.executable_name, entry.internal.th32ProcessID
+            entry.executable_name, entry.process_entry.th32ProcessID
         );
     }
 }

@@ -5,7 +5,7 @@ use windows::{
 
 #[derive(Debug)]
 pub struct ProcessEntryWrapper {
-    pub internal: PROCESSENTRY32W,
+    pub process_entry: PROCESSENTRY32W,
     pub executable_name: String,
 }
 
@@ -28,15 +28,15 @@ pub fn list_processes() -> Result<Vec<ProcessEntryWrapper>> {
 
     let mut processes: Vec<ProcessEntryWrapper> = Vec::new();
     processes.push(ProcessEntryWrapper {
-        internal: process_entry,
+        process_entry: process_entry,
         executable_name: u16_to_string(&process_entry.szExeFile)?,
     });
 
     while let Ok(()) = unsafe { Process32NextW(snapshot, &mut process_entry) } {
         processes.push(ProcessEntryWrapper {
-            internal: process_entry,
+            process_entry: process_entry,
             executable_name: u16_to_string(&process_entry.szExeFile)?,
-        })
+        });
     }
 
     unsafe { CloseHandle(snapshot) }?;
