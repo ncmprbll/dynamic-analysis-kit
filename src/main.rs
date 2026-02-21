@@ -1,12 +1,23 @@
 use dynamic_analysis_kit::*;
 
 fn main() {
-    for entry in list_processes().unwrap() {
+    let processes = list_processes().unwrap();
+
+    for entry in processes.iter() {
         println!(
             "{} {:?}",
             entry.executable_name, entry.process_entry.th32ProcessID
         );
     }
 
-    println!("{:?}", process_handle_by_id(7568));
+    let entry = processes
+        .iter()
+        .find(|x| x.executable_name == "msedge.exe")
+        .unwrap();
+
+    let handle = process_handle_by_name("msedge.exe").unwrap().unwrap();
+
+    for entry in process_modules_by_id(entry.th32ProcessID).unwrap() {
+        println!("{}", entry.module_name);
+    }
 }
