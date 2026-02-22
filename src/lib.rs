@@ -88,15 +88,7 @@ pub fn process_handle_by_name(name: &str) -> Result<Option<HandleWrapper>> {
         .iter()
         .find(|wrapper| wrapper.executable_name == name)
     {
-        Some(wrapper) => Ok(Some(HandleWrapper {
-            handle: unsafe {
-                OpenProcess(
-                    PROCESS_ALL_ACCESS,
-                    false,
-                    wrapper.process_entry.th32ProcessID,
-                )
-            }?,
-        })),
+        Some(wrapper) => Ok(Some(process_handle_by_id(wrapper.th32ProcessID)?)),
         None => Ok(None),
     }
 }
