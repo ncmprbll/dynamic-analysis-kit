@@ -1,9 +1,9 @@
-use std::ops::Deref;
+use std::{ffi::c_void, ops::Deref};
 
 use windows::{
     Win32::{
         Foundation::{CloseHandle, HANDLE},
-        System::{Diagnostics::ToolHelp::*, Threading::*},
+        System::{Diagnostics::ToolHelp::*, Memory::*, Threading::*},
     },
     core::Result,
 };
@@ -157,4 +157,57 @@ pub fn process_modules_by_id(process_id: u32) -> Result<Vec<ModuleEntryWrapper>>
     unsafe { CloseHandle(snapshot) }?;
 
     Ok(modules)
+}
+
+pub fn get_readable_pages_by_address(
+    handle: &HANDLE,
+    base_address: *mut u8,
+) -> Vec<MEMORY_BASIC_INFORMATION> {
+    let mut region_address = base_address;
+    let mut region_information = MEMORY_BASIC_INFORMATION::default();
+
+    let mut regions: Vec<MEMORY_BASIC_INFORMATION> = Vec::new();
+
+    loop {
+        if unsafe {
+            VirtualQueryEx(
+                *handle,
+                Some(region_address as *const c_void),
+                &mut region_information,
+                size_of::<MEMORY_BASIC_INFORMATION>(),
+            )
+        } == 0
+        {
+            break;
+        }
+
+        // Not part of the same initial allocation
+        if region_information.State == MEM_FREE {
+            break;
+        }
+
+        if region_information.State != MEM_COMMIT {
+            continue;
+        }
+
+        if (region_information.Protect
+            & (PAGE_READONLY
+                | PAGE_READWRITE
+                | PAGE_WRITECOPY
+                | PAGE_EXECUTE_READ
+                | PAGE_EXECUTE_READWRITE
+                | PAGE_EXECUTE_WRITECOPY))
+            .0
+            == 0
+        {
+            continue;
+        }
+
+        // We trust Windows not to point us in the wrong direction
+        region_address = unsafe { region_address.add(region_information.RegionSize) };
+
+        regions.push(region_information);
+    }
+
+    regions
 }
