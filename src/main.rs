@@ -28,9 +28,8 @@ fn main() {
     let entry = *entry;
 
     let handle = process::handle_by_pid(entry.th32ProcessID).unwrap();
-    process::handle_by_pid_with_rights(entry.th32ProcessID, process::PROCESS_ALL_ACCESS);
 
-    for entry in process_modules_by_id(entry.th32ProcessID).unwrap() {
+    for entry in module::list_by_pid(entry.th32ProcessID).unwrap() {
         if entry.module_name == "telclient.dll" {
             println!("{} 0x{:X}", entry.module_name, entry.modBaseAddr as i64);
             for info in consecutive_readable_pages_at(&handle, entry.modBaseAddr) {

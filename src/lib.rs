@@ -3,13 +3,10 @@
 //! `dynamic-analysis-kit` is a collection of utilities to make performing certain
 //! calls to Win32 API simpler and aid in reverse engineering or malware analysis
 
-use std::{ffi::c_void, ops::Deref};
+use std::ffi::c_void;
 
 use windows::{
-    Win32::{
-        Foundation::{CloseHandle, HANDLE},
-        System::{Diagnostics::ToolHelp::*, Memory::*},
-    },
+    Win32::{Foundation::HANDLE, System::Memory::*},
     core::Result,
 };
 
@@ -23,58 +20,6 @@ fn u16_to_string(array: &[u16]) -> Result<String> {
         .unwrap_or(array.len());
 
     Ok(String::from_utf16(&array[..first_null_position])?)
-}
-
-#[derive(Debug)]
-pub struct ModuleEntryWrapper {
-    pub module_entry: MODULEENTRY32W,
-    pub module_name: String,
-}
-
-impl ModuleEntryWrapper {
-    fn u16_to_string(array: &[u16]) -> Result<String> {
-        let first_null_position = array
-            .iter()
-            .position(|value| *value == 0)
-            .unwrap_or(array.len());
-
-        Ok(String::from_utf16(&array[..first_null_position])?)
-    }
-
-    pub fn new(module_entry: MODULEENTRY32W) -> Result<Self> {
-        Ok(Self {
-            module_entry,
-            module_name: Self::u16_to_string(&module_entry.szModule)?,
-        })
-    }
-}
-
-impl Deref for ModuleEntryWrapper {
-    type Target = MODULEENTRY32W;
-
-    fn deref(&self) -> &Self::Target {
-        &self.module_entry
-    }
-}
-
-pub fn process_modules_by_id(process_id: u32) -> Result<Vec<ModuleEntryWrapper>> {
-    let mut module_entry = MODULEENTRY32W::default();
-    module_entry.dwSize = size_of::<MODULEENTRY32W>() as u32;
-
-    let snapshot = unsafe { CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, process_id) }?;
-
-    unsafe { Module32FirstW(snapshot, &mut module_entry) }?;
-
-    let mut modules: Vec<ModuleEntryWrapper> = Vec::new();
-    modules.push(ModuleEntryWrapper::new(module_entry)?);
-
-    while let Ok(()) = unsafe { Module32NextW(snapshot, &mut module_entry) } {
-        modules.push(ModuleEntryWrapper::new(module_entry)?);
-    }
-
-    unsafe { CloseHandle(snapshot) }?;
-
-    Ok(modules)
 }
 
 pub fn consecutive_readable_pages_at(
