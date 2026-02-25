@@ -1,7 +1,9 @@
 use std::ffi::c_void;
 
 use dynamic_analysis_kit::*;
-use windows::Win32::System::Diagnostics::Debug::ReadProcessMemory;
+use windows::Win32::System::{
+    Diagnostics::Debug::ReadProcessMemory, Threading::PROCESS_ACCESS_RIGHTS,
+};
 
 fn main() {
     let processes = process::list().unwrap();
@@ -19,6 +21,7 @@ fn main() {
         .unwrap();
 
     let handle = process::handle_by_pid(entry.th32ProcessID).unwrap();
+    process::handle_by_pid_with_rights(entry.th32ProcessID, process::PROCESS_ALL_ACCESS);
 
     // for entry in process_modules_by_id(entry.th32ProcessID).unwrap() {
     //     if entry.module_name == "telclient.dll" {

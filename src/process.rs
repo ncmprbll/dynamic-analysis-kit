@@ -7,9 +7,16 @@ use std::ops::Deref;
 use windows::{
     Win32::{
         Foundation::{CloseHandle, HANDLE},
-        System::{Diagnostics::ToolHelp::*, Threading::*},
+        System::{Diagnostics::ToolHelp::*, Threading::OpenProcess},
     },
     core::Result,
+};
+
+pub use windows::Win32::System::Threading::{
+    PROCESS_ACCESS_RIGHTS, PROCESS_ALL_ACCESS, PROCESS_CREATE_PROCESS, PROCESS_CREATE_THREAD,
+    PROCESS_DUP_HANDLE, PROCESS_QUERY_INFORMATION, PROCESS_QUERY_LIMITED_INFORMATION,
+    PROCESS_SET_INFORMATION, PROCESS_SET_QUOTA, PROCESS_SUSPEND_RESUME, PROCESS_TERMINATE,
+    PROCESS_VM_OPERATION, PROCESS_VM_READ, PROCESS_VM_WRITE,
 };
 
 const DEFAULT_PROCESS_ACCESS_RIGHTS: PROCESS_ACCESS_RIGHTS = PROCESS_ALL_ACCESS;
@@ -121,7 +128,26 @@ impl Deref for HandleWrapper {
 /// let handle = *handle_wrapper; // Implements Deref
 /// ```
 pub fn handle_by_pid(pid: u32) -> Result<HandleWrapper> {
+    handle_by_pid_with_rights(pid, DEFAULT_PROCESS_ACCESS_RIGHTS)
+}
+
+/// Returns a process handle wrapper by its identifier and given rights.
+///
+/// # Examples
+/// ```
+/// use crate::dynamic_analysis_kit::*;
+///
+/// let processes = process::list().unwrap();
+/// let entry = processes
+///     .iter()
+///     .find(|&x| x.executable_name == "LockApp.exe") // System processes are gonna be upset with our meddling
+///     .unwrap();
+///
+/// let handle_wrapper = process::handle_by_pid_with_rights(entry.th32ProcessID, process::PROCESS_QUERY_INFORMATION).unwrap();
+/// let handle = *handle_wrapper; // Implements Deref
+/// ```
+pub fn handle_by_pid_with_rights(pid: u32, rights: PROCESS_ACCESS_RIGHTS) -> Result<HandleWrapper> {
     Ok(HandleWrapper {
-        handle: unsafe { OpenProcess(DEFAULT_PROCESS_ACCESS_RIGHTS, false, pid) }?,
+        handle: unsafe { OpenProcess(rights, false, pid) }?,
     })
 }
