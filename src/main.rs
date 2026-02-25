@@ -20,34 +20,41 @@ fn main() {
         .find(|x| x.executable_name == "msedge.exe")
         .unwrap();
 
+    let modules = module::list_by_pid(entry.th32ProcessID).unwrap();
+    let entry = modules
+        .into_iter()
+        .find(|x| x.module_name == "ntdll.exe")
+        .unwrap();
+    let entry = *entry;
+
     let handle = process::handle_by_pid(entry.th32ProcessID).unwrap();
     process::handle_by_pid_with_rights(entry.th32ProcessID, process::PROCESS_ALL_ACCESS);
 
-    // for entry in process_modules_by_id(entry.th32ProcessID).unwrap() {
-    //     if entry.module_name == "telclient.dll" {
-    //         println!("{} 0x{:X}", entry.module_name, entry.modBaseAddr as i64);
-    //         for info in consecutive_readable_pages_at(&handle, entry.modBaseAddr) {
-    //             let mut buffer: Vec<u8> = vec![0; info.RegionSize];
+    for entry in process_modules_by_id(entry.th32ProcessID).unwrap() {
+        if entry.module_name == "telclient.dll" {
+            println!("{} 0x{:X}", entry.module_name, entry.modBaseAddr as i64);
+            for info in consecutive_readable_pages_at(&handle, entry.modBaseAddr) {
+                let mut buffer: Vec<u8> = vec![0; info.RegionSize];
 
-    //             if let Err(err) = unsafe {
-    //                 ReadProcessMemory(
-    //                     *handle,
-    //                     info.BaseAddress as *const c_void,
-    //                     buffer.as_mut_ptr() as *mut c_void,
-    //                     info.RegionSize,
-    //                     None,
-    //                 )
-    //             } {
-    //                 eprintln!("Failed to read process memory: {err}");
-    //             }
+                if let Err(err) = unsafe {
+                    ReadProcessMemory(
+                        *handle,
+                        info.BaseAddress as *const c_void,
+                        buffer.as_mut_ptr() as *mut c_void,
+                        info.RegionSize,
+                        None,
+                    )
+                } {
+                    eprintln!("Failed to read process memory: {err}");
+                }
 
-    //             match aob(&buffer, &[1, 2, 3, 4]) {
-    //                 Some(index) => println!("0x{:X} +0x{:X}", info.BaseAddress as i64, index),
-    //                 None => println!("None"),
-    //             }
-    //         }
-    //     }
-    // }
+                match aob(&buffer, &[1, 2, 3, 4]) {
+                    Some(index) => println!("0x{:X} +0x{:X}", info.BaseAddress as i64, index),
+                    None => println!("None"),
+                }
+            }
+        }
+    }
 
     for page in every_readable_page(&handle) {
         println!("{:?}", page)

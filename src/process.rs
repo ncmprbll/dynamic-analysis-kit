@@ -1,4 +1,4 @@
-//! # Simplifies process manipulation
+//! # Process manipulation
 //!
 //! `process` abstracts away working with processes in a really plain way
 

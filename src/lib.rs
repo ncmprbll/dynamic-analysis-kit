@@ -13,6 +13,7 @@ use windows::{
     core::Result,
 };
 
+pub mod module;
 pub mod process;
 
 fn u16_to_string(array: &[u16]) -> Result<String> {
