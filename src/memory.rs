@@ -102,3 +102,76 @@ pub fn list_modules_by_pid(process_id: u32) -> Result<Vec<ModuleEntryWrapper>> {
 
     Ok(modules)
 }
+
+pub enum PageAllocation {
+    Same,
+    Any,
+}
+
+pub fn list_pages_by_handle_with_flags(
+    handle: &HANDLE,
+    base_address: *mut u8,
+    page_allocation: PageAllocation,
+    flags: PAGE_PROTECTION_FLAGS,
+) -> Vec<MEMORY_BASIC_INFORMATION> {
+    let mut region_address = base_address;
+    let mut region_information = MEMORY_BASIC_INFORMATION::default();
+
+    let mut regions: Vec<MEMORY_BASIC_INFORMATION> = Vec::new();
+
+    loop {
+        if unsafe {
+            VirtualQueryEx(
+                *handle,
+                Some(region_address as *const c_void),
+                &mut region_information,
+                size_of::<MEMORY_BASIC_INFORMATION>(),
+            )
+        } == 0
+        {
+            break;
+        }
+
+        match page_allocation {
+            PageAllocation::Same => {
+                // Not part of the same initial allocation
+                if region_information.State == MEM_FREE {
+                    break;
+                }
+            }
+            PageAllocation::Any => (),
+        }
+
+        // We trust Windows not to point us in the wrong direction
+        region_address = unsafe { region_address.add(region_information.RegionSize) };
+
+        if region_information.State != MEM_COMMIT {
+            continue;
+        }
+
+        if (region_information.Protect & flags).0 == 0 {
+            continue;
+        }
+
+        regions.push(region_information);
+    }
+
+    regions
+}
+
+pub fn list_readonly_pages_by_handle(
+    handle: &HANDLE,
+    base_address: *mut u8,
+    page_allocation: PageAllocation,
+) -> Vec<MEMORY_BASIC_INFORMATION> {
+    list_pages_by_handle_with_flags(
+        handle,
+        base_address,
+        page_allocation,
+        DEFAULT_PAGE_PROTECTION_FLAGS,
+    )
+}
+
+pub fn list_every_readonly_page_by_handle(handle: &HANDLE) -> Vec<MEMORY_BASIC_INFORMATION> {
+    list_readonly_pages_by_handle(handle, 0 as *mut u8, PageAllocation::Any)
+}
