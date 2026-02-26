@@ -1,6 +1,6 @@
-//! # Module manipulation
+//! # Virtual address space shenanigans
 //!
-//! `module` abstracts away working with modules
+//! `memory` abstracts away working with process's virtual address space
 
 use std::ops::Deref;
 
@@ -22,7 +22,7 @@ use windows::{
 ///     .find(|&x| x.executable_name == "LockApp.exe")
 ///     .unwrap();
 ///
-/// let modules = module::list_by_pid(entry.th32ProcessID).unwrap();
+/// let modules = module::list_modules_by_pid(entry.th32ProcessID).unwrap();
 /// let entry_wrapper = modules
 ///     .into_iter()
 ///     .find(|x| x.module_name == "ntdll.dll")
@@ -64,13 +64,13 @@ impl Deref for ModuleEntryWrapper {
 ///     .find(|&x| x.executable_name == "LockApp.exe")
 ///     .unwrap();
 ///
-/// let modules = module::list_by_pid(entry.th32ProcessID).unwrap();
+/// let modules = module::list_modules_by_pid(entry.th32ProcessID).unwrap();
 /// let entry = modules
 ///     .iter()
 ///     .find(|&x| x.module_name == "ntdll.dll")
 ///     .unwrap();
 /// ```
-pub fn list_by_pid(process_id: u32) -> Result<Vec<ModuleEntryWrapper>> {
+pub fn list_modules_by_pid(process_id: u32) -> Result<Vec<ModuleEntryWrapper>> {
     let mut module_entry = MODULEENTRY32W::default();
     module_entry.dwSize = size_of::<MODULEENTRY32W>() as u32;
 

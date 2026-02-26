@@ -20,7 +20,7 @@ fn main() {
         .find(|x| x.executable_name == "msedge.exe")
         .unwrap();
 
-    let modules = module::list_by_pid(entry.th32ProcessID).unwrap();
+    let modules = memory::list_modules_by_pid(entry.th32ProcessID).unwrap();
     let entry = modules
         .into_iter()
         .find(|x| x.module_name == "ntdll.exe")
@@ -29,7 +29,7 @@ fn main() {
 
     let handle = process::handle_by_pid(entry.th32ProcessID).unwrap();
 
-    for entry in module::list_by_pid(entry.th32ProcessID).unwrap() {
+    for entry in memory::list_modules_by_pid(entry.th32ProcessID).unwrap() {
         if entry.module_name == "telclient.dll" {
             println!("{} 0x{:X}", entry.module_name, entry.modBaseAddr as i64);
             for info in consecutive_readable_pages_at(&handle, entry.modBaseAddr) {
