@@ -169,7 +169,7 @@ impl Iterator for SizedPageReader<'_> {
         let buffer_size = std::cmp::min(self.size, self.page.RegionSize - base_offset);
         let mut buffer: Vec<u8> = vec![0; buffer_size];
 
-        if let Err(err) = unsafe {
+        if let Err(_) = unsafe {
             ReadProcessMemory(
                 *self.handle,
                 self.at,
@@ -178,7 +178,6 @@ impl Iterator for SizedPageReader<'_> {
                 None,
             )
         } {
-            println!("{:?}", err);
             return None;
         };
 

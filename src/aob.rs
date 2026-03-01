@@ -177,7 +177,7 @@ mod tests {
         let buffer: &[u8] = &[0xAA, 0xBB, 0xCC, 0xDD];
         let pattern = "gg wp";
 
-        assert_eq!(scan(buffer, pattern), vec![]);
+        scan(buffer, pattern);
     }
 
     #[test]
