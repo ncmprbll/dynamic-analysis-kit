@@ -199,6 +199,23 @@ impl MemoryBasicInformationWrapper {
         }
     }
 
+    /// A straight forward version of [`MemoryBasicInformationWrapper::sized_reader`]. It just reads
+    /// the entire page into memory.
+    pub fn read<'a>(&'a self, handle: &'a HANDLE) -> Option<Vec<u8>> {
+        SizedPageReader::new(handle, self, self.RegionSize, 0).next()
+    }
+
+    /// Returns an iterator over the page's memory of a given size.
+    ///
+    /// Size of the vector at each iteration is guaranteed to be `min(bytes_left_to_read_in_the_region, requested_size)`.
+    ///
+    /// The iterator is advancing `size - step_offset` at a time. Use `step_offset`
+    /// to account for overlapping sequences of bytes - like when you need to find a
+    /// sequence of bytes that is unluckily separated across two iterations.
+    ///
+    /// # Panics
+    /// This method expects step offset to not be greater or equal to page size, otherwise
+    /// the iterator fails to advance.
     pub fn sized_reader<'a>(
         &'a self,
         handle: &'a HANDLE,
