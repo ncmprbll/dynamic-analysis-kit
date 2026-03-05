@@ -66,6 +66,14 @@ fn main() {
                 }
             };
 
+            let pattern = match aob::Pattern::new(&args[3]) {
+                Ok(pattern) => pattern,
+                Err(err) => {
+                    eprintln!("Failed to create pattern: {err}");
+                    exit(1);
+                }
+            };
+
             for page in memory::list_every_readonly_page_by_handle(&handle) {
                 let base_address = page.BaseAddress as usize;
 
@@ -77,15 +85,9 @@ fn main() {
                     }
                 };
 
-                match aob::scan(&buffer, &args[3]) {
-                    Ok(indices) => indices
-                        .iter()
-                        .for_each(|index| println!("0x{:X} +0x{:X}", base_address, index)),
-                    Err(err) => {
-                        eprintln!("Scan failed: {err}");
-                        return;
-                    }
-                }
+                aob::scan(&buffer, &pattern)
+                    .iter()
+                    .for_each(|index| println!("0x{:X} +0x{:X}", base_address, index));
             }
         }
         _ => {
