@@ -79,10 +79,7 @@ fn main() {
 
                 let buffer = match page.read(&handle) {
                     Some(buffer) => buffer,
-                    None => {
-                        eprintln!("Failed to read the page at the base 0x{:X}", base_address);
-                        continue;
-                    }
+                    None => continue,
                 };
 
                 aob::scan(&buffer, &pattern)

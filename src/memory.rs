@@ -128,7 +128,7 @@ struct SizedPageReader<'a> {
     page: &'a MEMORY_BASIC_INFORMATION,
     at: *mut c_void,
     size: usize,
-    step_offset: usize,
+    additional_non_consuming_size: usize,
 }
 
 impl<'a> SizedPageReader<'a> {
@@ -136,18 +136,14 @@ impl<'a> SizedPageReader<'a> {
         handle: &'a HANDLE,
         page: &'a MEMORY_BASIC_INFORMATION,
         size: usize,
-        step_offset: usize,
+        additional_non_consuming_size: usize,
     ) -> Self {
-        if step_offset >= size {
-            panic!("step offset should not be greater or equal to page size")
-        }
-
         Self {
             handle,
             page,
             at: page.BaseAddress,
             size,
-            step_offset,
+            additional_non_consuming_size,
         }
     }
 }
@@ -166,11 +162,10 @@ impl Iterator for SizedPageReader<'_> {
             return None;
         }
 
-        if base_offset + self.step_offset >= self.page.RegionSize {
-            return None;
-        }
-
-        let buffer_size = std::cmp::min(self.size, self.page.RegionSize - base_offset);
+        let buffer_size = std::cmp::min(
+            self.size + self.additional_non_consuming_size,
+            self.page.RegionSize - base_offset,
+        );
         let mut buffer: Vec<u8> = vec![0; buffer_size];
 
         if let Err(_) = unsafe {
@@ -185,7 +180,7 @@ impl Iterator for SizedPageReader<'_> {
             return None;
         };
 
-        self.at = unsafe { self.at.add(buffer_size - self.step_offset) };
+        self.at = unsafe { self.at.add(self.size) };
 
         Some(buffer)
     }
@@ -213,20 +208,16 @@ impl MemoryBasicInformationWrapper {
     ///
     /// Size of the vector at each iteration is guaranteed to be `min(bytes_left_to_read_in_the_region, requested_size)`.
     ///
-    /// The iterator is advancing `size - step_offset` at a time. Use `step_offset`
+    /// The iterator is advancing `size` bytes at a time. Use `additional_non_consuming_size`
     /// to account for overlapping sequences of bytes - like when you need to find a
     /// sequence of bytes that is unluckily separated across two iterations.
-    ///
-    /// # Panics
-    /// This method expects step offset to not be greater or equal to page size, otherwise
-    /// the iterator fails to advance.
     pub fn sized_reader<'a>(
         &'a self,
         handle: &'a HANDLE,
         size: usize,
-        step_offset: usize,
+        additional_non_consuming_size: usize,
     ) -> impl Iterator<Item = Vec<u8>> + 'a {
-        SizedPageReader::new(handle, self, size, step_offset)
+        SizedPageReader::new(handle, self, size, additional_non_consuming_size)
     }
 }
 

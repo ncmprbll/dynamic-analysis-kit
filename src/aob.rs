@@ -39,6 +39,11 @@ impl Pattern {
                 .collect::<Result<Vec<Token>, PatternError>>()?,
         })
     }
+
+    /// Returns the number of the tokens in the pattern.
+    pub fn len(&self) -> usize {
+        self.tokens.len()
+    }
 }
 
 /// Represents a combination of errors: [`ParseIntError`] and [`Utf8Error`].
