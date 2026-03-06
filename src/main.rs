@@ -4,7 +4,7 @@ use std::{
     process::exit,
 };
 
-use dynamic_analysis_kit::*;
+use malakit::*;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

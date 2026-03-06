@@ -32,7 +32,7 @@ pub const DEFAULT_PROCESS_ACCESS_RIGHTS: PROCESS_ACCESS_RIGHTS = PROCESS_ALL_ACC
 ///
 /// # Examples
 /// ```
-/// use crate::dynamic_analysis_kit::*;
+/// use crate::malakit::*;
 ///
 /// let processes = process::list().unwrap();
 /// let entry = processes
@@ -67,7 +67,7 @@ impl Deref for ProcessEntryWrapper {
 /// # Examples
 ///
 /// ```
-/// use crate::dynamic_analysis_kit::*;
+/// use crate::malakit::*;
 ///
 /// let processes = process::list().unwrap();
 /// let entry = processes
@@ -122,7 +122,7 @@ impl Deref for HandleWrapper {
 ///
 /// # Examples
 /// ```
-/// use crate::dynamic_analysis_kit::*;
+/// use crate::malakit::*;
 ///
 /// let processes = process::list().unwrap();
 /// let entry = processes
@@ -141,7 +141,7 @@ pub fn handle_by_pid(pid: u32) -> Result<HandleWrapper> {
 ///
 /// # Examples
 /// ```
-/// use crate::dynamic_analysis_kit::*;
+/// use crate::malakit::*;
 ///
 /// let processes = process::list().unwrap();
 /// let entry = processes

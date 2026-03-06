@@ -17,7 +17,7 @@ impl Pattern {
     ///
     /// # Examples
     /// ```
-    /// use crate::dynamic_analysis_kit::*;
+    /// use crate::malakit::*;
     ///
     /// let pattern = aob::Pattern::new("00 CC AA FA ?? ?? FC ?? ?? 0B").unwrap();
     /// let pattern = aob::Pattern::new("00CCAAFA????FC????0B").unwrap();
@@ -87,7 +87,7 @@ enum Token {
 ///
 /// # Examples
 /// ```
-/// use crate::dynamic_analysis_kit::*;
+/// use crate::malakit::*;
 ///
 /// let processes = process::list().unwrap();
 /// let entry = processes

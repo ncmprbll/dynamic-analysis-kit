@@ -3,7 +3,7 @@
 version = 4
 
 [[package]]
-name = "dynamic-analysis-kit"
+name = "malakit"
 version = "0.6.7"
 dependencies = [
  "windows",

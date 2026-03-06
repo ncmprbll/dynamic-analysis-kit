@@ -40,7 +40,7 @@ pub const DEFAULT_PAGE_PROTECTION_FLAGS: PAGE_PROTECTION_FLAGS = PAGE_PROTECTION
 ///
 /// # Examples
 /// ```
-/// use crate::dynamic_analysis_kit::*;
+/// use crate::malakit::*;
 ///
 /// let processes = process::list().unwrap();
 /// let entry = processes
@@ -82,7 +82,7 @@ impl Deref for ModuleEntryWrapper {
 ///
 /// # Examples
 /// ```
-/// use crate::dynamic_analysis_kit::*;
+/// use crate::malakit::*;
 ///
 /// let processes = process::list().unwrap();
 /// let entry = processes
@@ -245,7 +245,7 @@ pub enum PageAllocation {
 ///
 /// # Examples
 /// ```
-/// use crate::dynamic_analysis_kit::*;
+/// use crate::malakit::*;
 ///
 /// let processes = process::list().unwrap();
 /// let entry = processes

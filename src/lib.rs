@@ -1,6 +1,6 @@
-//! # dynamic-analysis-kit
+//! # malakit
 //!
-//! `dynamic-analysis-kit` is a collection of utilities to make performing certain
+//! `malakit` is a collection of utilities to make performing certain
 //! calls to Win32 API simpler and aid in reverse engineering or malware analysis
 
 use windows::core::Result;
