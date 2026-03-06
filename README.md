@@ -1,4 +1,5 @@
-[![Crates Package Status](https://img.shields.io/crates/v/malakit.svg)](https://crates.io/crates/malakit)
+[![Crates Package Status](https://img.shields.io/crates/v/malakit.svg?logo=rust)](https://crates.io/crates/malakit)
+[![Crates Documentation](https://img.shields.io/docsrs/malakit/latest.svg?logo=rust)](https://docs.rs/malakit/latest/malakit)
 
 # Malakit
 Malakit (**mal**ware **a**nalysis **kit**) is both a CLI utility and a library whose purpose is to simplify some of a boilerplate you come across when working with Windows's API.
@@ -7,7 +8,7 @@ The name sounds almost like *malachite* and it is also misleading. That is, you'
 
 # Usage
 ## Library
-Refer to the documentation.
+Refer to the [documentation](https://docs.rs/malakit/latest/malakit).
 
 ## CLI
 ```
