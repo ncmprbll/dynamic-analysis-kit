@@ -1,3 +1,5 @@
+[![Crates Package Status](https://img.shields.io/crates/v/malakit.svg)](https://crates.io/crates/malakit)
+
 # Malakit
 Malakit (**mal**ware **a**nalysis **kit**) is both a CLI utility and a library whose purpose is to simplify some of a boilerplate you come across when working with Windows's API.
 
