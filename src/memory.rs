@@ -210,7 +210,8 @@ impl MemoryBasicInformationWrapper {
     ///
     /// The iterator is advancing `size` bytes at a time. Use `additional_non_consuming_size`
     /// to account for overlapping sequences of bytes - like when you need to find a
-    /// sequence of bytes that is unluckily separated across two iterations.
+    /// sequence of bytes that is unluckily separated across two iterations. See `main.rs` for an
+    /// example.
     pub fn sized_reader<'a>(
         &'a self,
         handle: &'a HANDLE,
