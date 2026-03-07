@@ -6,6 +6,9 @@ Malakit (**mal**ware **a**nalysis **kit**) is both a CLI utility and a library w
 
 The name sounds almost like *malachite* and it is also misleading. That is, you're not obliged to use it for malware analysis. It should suffice for any other goals you have in mind!
 
+# Installation
+`cargo install malakit --target x86_64-pc-windows-gnu`
+
 # Usage
 ## Library
 Refer to the [documentation](https://docs.rs/malakit/latest/malakit).
